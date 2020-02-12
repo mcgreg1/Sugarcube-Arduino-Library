@@ -34,8 +34,8 @@
       void virtual yAccHasChanged(int val){}
       void virtual pot1HasChanged(int val){}
       void virtual pot2HasChanged(int val){}
-      void virtual xGyroHasChanged(int val){}
-      void virtual yGyroHasChanged(int val){}
+      void virtual volHasChanged(int val){}
+      void virtual instrumentHasChanged(int val){}
       
       void virtual wasShaken(){}
       

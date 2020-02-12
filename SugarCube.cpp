@@ -10,6 +10,7 @@
   //-------------------------CONSTRUCTOR/SETUP---------------------------
   //---------------------------------------------------------------------
 
+//TODO: adjust Accelerator Settings, Add Volume, adjust pins
   SugarCube::SugarCube()
   {
     //constructor method
@@ -64,8 +65,8 @@
     pinMode(_yAccPin,INPUT);
     pinMode(_pot1Pin,INPUT);
     pinMode(_pot2Pin,INPUT);
-    pinMode(_xGyroPin,INPUT);
-    pinMode(_yGyroPin,INPUT);
+    pinMode(_volPin,INPUT);
+    pinMode(_instrumentPin,INPUT);
     //set serial pin connections
     pinMode(1,OUTPUT);
     pinMode(0,INPUT);
@@ -96,20 +97,21 @@
   
   void SugarCube::timer2Setup()//this is only setup for serial communication, not for midi
   { 
+	//had to use different timer, since 32u4 has no timer2
     cli();//stop interrupts
 
     //set timer2 interrupt every 128us
-    TCCR2A = 0;// set entire TCCR2A register to 0
-    TCCR2B = 0;// same for TCCR2B
-    TCNT2  = 0;//initialize counter value to 0
+    TCCR3A = 0;// set entire TCCR2A register to 0
+    TCCR3B = 0;// same for TCCR2B
+    TCNT3  = 0;//initialize counter value to 0
     // set compare match register for 7.8khz increments
-    OCR2A = 255;// = (16*10^6) / (7812.5*8) - 1 (must be <256)
+    OCR3A = 255;// = (16*10^6) / (7812.5*8) - 1 (must be <256)
     // turn on CTC mode
-    TCCR2A |= (1 << WGM21);
+    TCCR3A |= (1 << WGM41);
     // Set CS11 bit for 8 prescaler
-    TCCR2B |= (1 << CS11);   
+    TCCR3B |= (1 << CS11);   
     // enable timer compare interrupt
-    TIMSK2 |= (1 << OCIE2A);
+    TIMSK3 |= (1 << OCIE0A);
     
     sei();//allow interrupts
   }
@@ -130,8 +132,8 @@
     this->setYAccPin();
     this->setPot1Pin();
     this->setPot2Pin();
-    this->setXGyroPin();
-    this->setYGyroPin();
+    this->setVolPin();
+    this->setInstrumentPin();
   }
   
   void SugarCube::setLedLatchPin(byte pinNum)
@@ -183,16 +185,15 @@
   {
     _pot2Pin = pinNum;
   }
-  
-  void SugarCube::setXGyroPin(byte pinNum)
+  void SugarCube::setVolPin(byte pinNum)
   {
-    _xGyroPin = pinNum;
+    _volPin = pinNum;
   }
-  
-  void SugarCube::setYGyroPin(byte pinNum)
+  void SugarCube::setInstrumentPin(byte pinNum)
   {
-    _yGyroPin = pinNum;
+    _instrumentPin = pinNum;
   }
+
   
   //---------------------------------------------------------------------
   //-----------------------RECEIVE BUTTON DATA---------------------------
@@ -318,15 +319,6 @@
     return this->scaleAcc(_yAccRaw);
   }
   
-  int SugarCube::getXAxisGyroVal()
-  {//returns value of gyroscope x axis
-    return _xGyro;
-  }
-  
-  int SugarCube::getYAxisGyroVal()
-  {//returns value of gyroscope y axis
-    return _yGyro;
-  }
   
   int SugarCube::getPot1Val()
   {//returns value of potentiomenter #1
@@ -336,6 +328,15 @@
   int SugarCube::getPot2Val()
   {//returns value of potentiomenter #2
     return _pot2;
+  }
+  
+  int SugarCube::getVolVal()
+  {//returns value of Volume
+    return _vol;
+  }
+  int SugarCube::getInstrumentVal()
+  {//returns value of Volume
+    return _instrument;
   }
   
   //---------------------------------------------------------------------
@@ -526,20 +527,20 @@
   {
     _xAccRaw = analogRead(_xAccPin);
     _yAccRaw = analogRead(_yAccPin);
-    _xGyro = analogRead(_xGyroPin);
-    _yGyro = analogRead(_yGyroPin);
     _pot1 = analogRead(_pot1Pin);
     _pot2 = analogRead(_pot2Pin);
+    _vol = analogRead(_volPin);
+    _instrument = analogRead(_instrumentPin);
   }
   
   void SugarCube::checkAnalogPins()
   {
     this->setXAcc(this->analogValFromPin(_xAccPin, _xAccRaw));
     this->setYAcc(this->analogValFromPin(_yAccPin, _yAccRaw));
-    this->setXGyro(this->analogValFromPin(_xGyroPin, _xGyro));
-    this->setYGyro(this->analogValFromPin(_yGyroPin, _yGyro));
     this->setPot1(this->analogValFromPin(_pot1Pin, _pot1));
     this->setPot2(this->analogValFromPin(_pot2Pin, _pot2));
+    this->setVol(this->analogValFromPin(_volPin, _vol));
+    this->setInstrument(this->analogValFromPin(_instrumentPin, _instrument));
     this->checkForShake();
   }
   
@@ -579,22 +580,20 @@
     //between 335 and 231
     return constrain(map(rawVal, 335, 231, 0, 127), 0, 127);
   }
-  
-  void SugarCube::setXGyro(int newVal)
+
+  byte SugarCube::scaleVol(int rawVal)
   {
-    if (_xGyro != newVal){
-      _xGyro = newVal;
-      _delegate->xGyroHasChanged(newVal);
-    }
+    //between 0 and 127
+    //TODO
+    return constrain(map(rawVal, 0, 1024, 0, 127), 0, 127);
+  }
+
+  byte SugarCube::scaleInstrument(int rawVal)
+  {
+    //TODO, let's say 10
+    return constrain(map(rawVal, 0, 1024, 0, 10), 0, 10);
   }
   
-  void SugarCube::setYGyro(int newVal)
-  {
-    if (_yGyro != newVal){
-      _yGyro = newVal;
-      _delegate->yGyroHasChanged(newVal);
-    }
-  }
   
   void SugarCube::setPot1(int newVal)
   {
@@ -609,6 +608,30 @@
     if (_pot2 != newVal){
       _pot2 = newVal;
       _delegate->pot2HasChanged(newVal);
+    }
+  }
+  void SugarCube::setVol(int newVal)
+  {
+    if (_volRaw != newVal){
+      byte scaledNewVal = this->scaleVol(newVal);
+      if (this->scaleVol(_volRaw) != scaledNewVal){
+        _volRaw = newVal;
+        //TODO send midi volume
+        
+        _delegate->volHasChanged(scaledNewVal);
+      }
+    }
+  }
+  void SugarCube::setInstrument(int newVal)
+  {
+    if (_instrumentRaw != newVal){
+      byte scaledNewVal = this->scaleInstrument(newVal);
+      if (this->scaleInstrument(_instrumentRaw) != scaledNewVal){
+        _instrumentRaw = newVal;
+        //TODO change instrument
+        
+        _delegate->instrumentHasChanged(scaledNewVal);
+      }
     }
   }
   
@@ -644,8 +667,10 @@
   
   void SugarCube::setupMIDICommunication()
   {
-    Serial.begin(31250);//MIDI baud rate
+//    Serial.begin(31250);//MIDI baud rate
 //    Serial.begin(9600);//debugging
+	VS1053_MIDI.begin(31250); // MIDI uses a 'strange baud rate'
+	//TODO: Read Volume, Read Instrument
   }
   
   void SugarCube::noteOn(byte note, byte velocity, byte channel)
@@ -662,6 +687,33 @@
   {
     this->sendMIDI(224|channel, 0, pitchbend);//command&channel, lsb, msb
   }
+
+  void SugarCube::volume(byte volume, byte channel)
+  {
+    this->sendMIDI(176|channel, 0x07, volume);//command&channel, lsb, msb
+  }
+
+
+  void SugarCube::instrument(byte instrument, byte channel)
+  {
+
+    //set the bank first
+    VS1053_MIDI.write(176 | channel);
+    VS1053_MIDI.write(0);
+    
+    //TODO: pick 10 instruments
+    if (instrument >5)
+      VS1053_MIDI.write(0x79);//midi chan bank 0x78 drums, 0x79 melodic
+    else
+      VS1053_MIDI.write(0x78);//midi chan bank 0x78 drums, 0x79 melodic
+    
+    
+    //set the instrument
+    VS1053_MIDI.write(192|channel);//command&channel, lsb, msb
+    delay(10);
+    VS1053_MIDI.write(instrument);
+    delay(10);
+  }
   
   void SugarCube::sendMIDI(byte command, byte param1, byte param2) 
   {//sends a MIDI message
@@ -671,9 +723,13 @@
 //    Serial.print(param1);
 //    Serial.print("   ");
 //    Serial.println(param2);
-    Serial.write(command);
-    Serial.write(param1);
-    Serial.write(param2);
+//    Serial.write(command);
+//    Serial.write(param1);
+//    Serial.write(param2);
+  VS1053_MIDI.write(command);
+  VS1053_MIDI.write(param1);
+  VS1053_MIDI.write(param2);
+
   }
   
   void SugarCube::setupSerialCommunication()
@@ -731,4 +787,3 @@
   }
   
   
-

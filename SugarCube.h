@@ -16,13 +16,24 @@
   #include "Boiing.h"
   #include "Arp.h"
   #include "SerialComm.h"
+
+
+#if defined(__AVR_ATmega32U4__) || defined(ARDUINO_SAMD_FEATHER_M0) || defined(TEENSYDUINO) || defined(ARDUINO_STM32_FEATHER)
+  #define VS1053_MIDI Serial1
+#elif defined(ESP32)
+  HardwareSerial Serial1(2);
+  #define VS1053_MIDI Serial1
+#elif defined(ESP8266)
+  #define VS1053_MIDI Serial
+#endif
+
   
   class SugarCube
   {
     public:
     
       SugarCube();//constructor method
-      
+      //TODO: Adjust the PINS!
       //set pin connections
       void setLedLatchPin(byte pinNum = 6);
       void setLedClockPin(byte pinNum = 5);
@@ -34,8 +45,9 @@
       void setYAccPin(byte pinNum = A3);
       void setPot1Pin(byte pinNum = A1);
       void setPot2Pin(byte pinNum = A5);
-      void setXGyroPin(byte pinNum = A2);
-      void setYGyroPin(byte pinNum = A0);
+      void setVolPin(byte pinNum = A2);
+      void setInstrumentPin(byte pinNum = A6);
+
       
       byte init();//initialization function, call this in setup()
       
@@ -55,13 +67,12 @@
       byte getXAxisAccVal();//returns value of accelerometer x axis, value between 0-127
       byte getYAxisAccVal();//returns value of accelerometer y axis, value between 0-127
       
-      //gyroscope data
-      int getXAxisGyroVal();//returns value of gyroscope x axis, value between 0-1023
-      int getYAxisGyroVal();//returns value of gyroscope y axis, value between 0-1023
-      
+     
       //potentiometer data
       int getPot1Val();//returns value of potentiomenter #1, value between 0-1023
       int getPot2Val();//returns value of potentiomenter #2, value between 0-1023
+      int getVolVal();
+      int getInstrumentVal();
       
       //LED states
       void turnOnLED(byte xPos, byte yPos);//turn on one led
@@ -78,6 +89,8 @@
       void noteOff(byte note, byte channel = 0);//turn note off, note = 0-127, channel  = 0-15 (default channel = 0)
       void sendMIDI(byte command, byte param1, byte param2);//send generic 3 bit MIDI message
       void pitchBend(byte pitchbend, byte channel = 0);//pitchbend = 7 bit pitchbend val (0-127), channel = 0-15 (default channel = 0)
+      void volume(byte volume, byte channel =0);
+      void instrument(byte instrument, byte channel=0);
       
       //Timer interrupt routines
       void timer1Routine();
@@ -91,14 +104,14 @@
       byte _ledLatchPin, _ledClockPin, _ledDataPin;//led pin connections
       byte _buttonLatchPin, _buttonClockPin, _buttonDataPin;//button pin connections
       byte _xAccPin, _yAccPin;//accelerometer pin connections
-      byte _pot1Pin, _pot2Pin;//potentiometer pin connections
-      byte _xGyroPin, _yGyroPin;//gyroscope pin connections
+      byte _pot1Pin, _pot2Pin, _volPin, _instrumentPin;//potentiometer pin connections
+
       
       //debouncing variables
       byte _buttonDebounceTime;//sets the number of counts we will use to determine if a button has been properly debounced
       
       //analog storage
-      int _xAccRaw, _yAccRaw, _xGyro, _yGyro, _pot1, _pot2;
+      int _xAccRaw, _yAccRaw, _instrumentRaw, _volRaw, _pot1, _pot2, _vol, _instrument;
       
       //button/led states storage
       byte _ledData[4];//storage for led states, 4 bytes
@@ -123,10 +136,12 @@
       void setXAcc(int newVal);
       void setYAcc(int newVal);
       byte scaleAcc(int rawVal);
-      void setXGyro(int newVal);
-      void setYGyro(int newVal);
+      byte scaleVol(int rawVal);
+      byte scaleInstrument(int rawVal);
       void setPot1(int newVal);
       void setPot2(int newVal);
+      void setVol(int newVal);
+      void setInstrument(int newVal);
       
       //shake variables
       void checkForShake();
