@@ -15,7 +15,6 @@
   #include "Flin.h"
   #include "Boiing.h"
   #include "Arp.h"
-  #include "SerialComm.h"
 
 
 #if defined(__AVR_ATmega32U4__) || defined(ARDUINO_SAMD_FEATHER_M0) || defined(TEENSYDUINO) || defined(ARDUINO_STM32_FEATHER)
@@ -51,7 +50,6 @@
       
       byte init();//initialization function, call this in setup()
       
-      void setupSerialCommunication();//used for serial communication with MaxMSP
       void setupMIDICommunication();//midi communication
     
       //button states
@@ -94,7 +92,6 @@
       
       //Timer interrupt routines
       void timer1Routine();
-      void timer2Routine();
       
       void setDelegate(Delegate * newDelegate);
       

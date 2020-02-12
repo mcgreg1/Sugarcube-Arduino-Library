@@ -67,9 +67,7 @@
     pinMode(_pot2Pin,INPUT);
     pinMode(_volPin,INPUT);
     pinMode(_instrumentPin,INPUT);
-    //set serial pin connections
-    pinMode(1,OUTPUT);
-    pinMode(0,INPUT);
+
 //    DDRD = 0xFA;//set pins D7-D4 as output, D2 as input
   }
   
@@ -95,26 +93,6 @@
     sei();//allow interrupts
   }
   
-  void SugarCube::timer2Setup()//this is only setup for serial communication, not for midi
-  { 
-	//had to use different timer, since 32u4 has no timer2
-    cli();//stop interrupts
-
-    //set timer2 interrupt every 128us
-    TCCR3A = 0;// set entire TCCR2A register to 0
-    TCCR3B = 0;// same for TCCR2B
-    TCNT3  = 0;//initialize counter value to 0
-    // set compare match register for 7.8khz increments
-    OCR3A = 255;// = (16*10^6) / (7812.5*8) - 1 (must be <256)
-    // turn on CTC mode
-    TCCR3A |= (1 << WGM41);
-    // Set CS11 bit for 8 prescaler
-    TCCR3B |= (1 << CS11);   
-    // enable timer compare interrupt
-    TIMSK3 |= (1 << OCIE0A);
-    
-    sei();//allow interrupts
-  }
   
   //---------------------------------------------------------------------
   //--------------------PIN CONNECTION SETTERS---------------------------
@@ -731,13 +709,7 @@
   VS1053_MIDI.write(param2);
 
   }
-  
-  void SugarCube::setupSerialCommunication()
-  {
-    Serial.end();
-    Serial.begin(57600);
-    this->timer2Setup();
-  }
+
   
   //---------------------------------------------------------------------
   //--------------------INTERRUPT ROUTINES-------------------------------
@@ -756,25 +728,7 @@
       _delegateTimer = 0;
     }
   }
-  
-  void SugarCube::timer2Routine()
-  {
-    do{
-      if (Serial.available()){
-        byte ledByte = Serial.read();//000xxyys
-        boolean ledstate = ledByte & 1;
-        byte ledy = (ledByte >> 1) & 3;
-        byte ledx = (ledByte >> 3) & 3;
-        if (ledstate){
-          _ledData[ledy] |= 8 >> ledx;
-        }
-        else{
-          _ledData[ledy] &= ~ (8 >> ledx);
-        }
-      }//end if serial available
-    }//end do
-   while (Serial.available() > 0);
-  }
+
   
   //---------------------------------------------------------------------
   //-----------------------------DELEGATE--------------------------------

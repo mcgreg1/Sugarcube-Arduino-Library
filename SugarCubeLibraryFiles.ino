@@ -89,11 +89,7 @@
       case 13:
       case 14:
       case 15:
-        {
-        SerialComm serialComm;
-        sugarcube.setDelegate(&serialComm);
-        for (;;) {}
-        }
+
       break;
     }
   }
@@ -109,7 +105,3 @@
   ISR(TIMER1_COMPA_vect) {//time 1 interrupt, at freq of 1kHz
       sugarcube.timer1Routine();
   }
-
-  ISR(TIMER2_COMPA_vect) {//timer 2 interupt, every 128us
-      sugarcube.timer2Routine();
-  } 
