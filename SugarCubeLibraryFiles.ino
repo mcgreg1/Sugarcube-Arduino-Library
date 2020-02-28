@@ -1,107 +1,220 @@
-  #include "SugarCube.h"
+//basic midi test
+//based on sugarcube by Amanda Ghassaei 2012 https://github.com/amandaghassaei/Sugarcube-Arduino-Library
+//Modifications/adaptions by McGreg 2020
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+*/
+#include "SugarCube.h"
+
+
+#define APPSCOUNT 7
+
+
+void setup() 
+{
+  #ifdef DEBUG
+  delay(1000);
+  Serial.begin(115200);
+  Serial.println("VS1053 MIDI test");
+  #endif
+  VS1053_MIDI.begin(31250);//set midi baud 
+
+  midiSetChannelBank(0, VS1053_BANK_DEFAULT);
+  midiSetChannelVolume(0, 127);
+  midiSetInstrument(0, DEFAULT_INSTRUMENT);
+
+  pinMode(ledLatchPin,OUTPUT);
+  pinMode(ledClockPin,OUTPUT);
+  pinMode(ledDataPin,OUTPUT);
+  pinMode(buttonLatchPin,OUTPUT);
+  pinMode(buttonClockPin,OUTPUT);
+  pinMode(buttonDataPin,INPUT);
   
-  SugarCube sugarcube;
+  pinMode (pot1Pin, INPUT);
+  pinMode (pot2Pin, INPUT);
+  pinMode (volPin, INPUT);
+  pinMode (instButtonPin, INPUT);
+  pinMode (instRPin, INPUT);
+  pinMode (instLPin, INPUT);
+  
+  initValues();
 
-  void setup(){
-    
-//    default pin connections are given below:
-//
-//    Analog
-//  
-//    0 - Gyroscope Y (Y4.5)
-//    1 - Potentiometer 1
-//    2 - Gyroscope X (X4.5)
-//    3 - Accelerometer Y (YAcc)
-//    4 - Accelerometer X (XAcc)
-//    5 - Potentiometer 2
-//    
-//    Digital
-//    
-//    0 - serial in - this much remain unconnected
-//    1 - serial out - this is hooked up to the MIDI output
-//    2 - 74HC165 data pin (Q7)
-//    3 - 74HC165 clock pin (CP)
-//    4 - 74HC165 latch pin (PL)
-//    5 - 74HC595 clock pin (SH_CP)
-//    6 - 74HC595 latch pin (ST_CP)
-//    7 - 74HC595 data pin (DS)
-//    
-//    set custom pin connections using the following commands, this must happen before sugarcube.init()
-//    leave digital pins 0 and 1 (RX/TX Serial pins) empty
-//    sugarcube.setLedLatchPin(6);
-//    sugarcube.setLedClockPin(5);
-//    sugarcube.setLedDataPin(7);
-//    sugarcube.setButtonLatchPin(4);
-//    sugarcube.setButtonClockPin(3);
-//    sugarcube.setButtonDataPin(2);
-//    sugarcube.setXAccPin(A4);
-//    sugarcube.setYAccPin(A3);
-//    sugarcube.setPot1Pin(A1);
-//    sugarcube.setPot2Pin(A5);
-//    sugarcube.setXGyroPin(A2);
-//    sugarcube.setYGyroPin(A0);
-    
-    byte patchNum = sugarcube.init();
-    switch(patchNum) {
-      case 0:
-        {
-          StepSequencer stepSequencer;
-          sugarcube.setDelegate(&stepSequencer);
-          for (;;) {}
-        }
-      case 1:
-        {
-          Flin flin;
-          sugarcube.setDelegate(&flin);
-          for (;;) {}
-        }
-      case 2:
-        {
-          Boiing boiing;
-          sugarcube.setDelegate(&boiing);
-          for (;;) {}
-        }
-      case 3:
-        {
-          Arp arp;
-          sugarcube.setDelegate(&arp);
-          for (;;) {}
-        }
-      case 4:
-        {
-          SimpleMIDIKeyboard simpleMIDIKeyboard;
-          sugarcube.setDelegate(&simpleMIDIKeyboard);
-          for (;;) {}
-        }
-      case 5:
-        {
-          PixelTilt pixelTilt;
-          sugarcube.setDelegate(&pixelTilt);
-          for (;;) {}
-        }
-      case 6:
-      case 7:
-      case 8:
-      case 9:
-      case 10:
-      case 11:
-      case 12:
-      case 13:
-      case 14:
-      case 15:
+  Timer3.initialize(1000);
+  Timer3.attachInterrupt(timer1Routine);
 
-      break;
+    
+}
+void initValues()
+{
+  clearLEDs();
+  currentMidiChannel = 0;
+  //instrument=0;
+  //volRaw=0;
+  //vol=0;
+  for (i = 0; i < 4; i++)
+  {
+    ledData[i] = 0;
+    buttonCurrent[i] = 0;
+    buttonLast[i] = 0;
+    buttonEvent[i] = 0;
+    buttonState[i] = 0;
+  }
+  for (i=0; i<16; i++)
+  {
+    allNotesOff(i);
+    instrumentPerChannel[i]=0;
+  }
+}
+
+
+void routine100Hz()
+{
+  if (activeMode != NULL)
+    activeMode->routine100Hz();
+
+  else //signal to user for select
+  {
+    
+      clearLEDs();
+      turnOnLED(selectSig/20);
+      if (selectSig==APPSCOUNT*20-1)
+        selectSigForward=false;
+      else if (selectSig==0)
+        selectSigForward=true;
+      if (selectSigForward)
+        selectSig++;
+      else
+        selectSig--;
+
+        
+    }
+    
+}
+
+  void timer1Routine()//1kHz
+  {
+    shift(hardwareIter);
+   // shift();
+    //updateLEDs();
+    hardwareIter++;
+    if (hardwareIter>3){
+      hardwareIter = 0;
+    }
+    checkAnalogPins();
+    
+    checkRotaryEncoder();
+    if (++timer100Hz>9) 
+    {
+      routine100Hz();
+      timer100Hz = 0;
     }
   }
+
+void buttonPressed(byte xPos, byte yPos)
+{
+  #ifdef DEBUG
+    Serial.println((String)"Button Pressed: "+xPos+"x"+yPos);
+  #endif
+    if (activeMode != NULL)
+    {
+      activeMode->buttonPressed(xPos,yPos);
+    }
+  //turnOnLED(xPos,yPos);
+
+}
+
+void buttonReleased(byte xPos, byte yPos)
+{
+    //turnOffLED(xPos,yPos);
+    if (activeMode != NULL)
+    {
+      activeMode->buttonReleased(xPos,yPos);
+    }
+    else //select current active mode 
+    {
+      changeActiveMode(yPos*4 + xPos);
+    }
+}
+
+
+
+void changeActiveMode(int sel)
+{
+  if (sel<APPSCOUNT || sel==14)
+  {
+    initValues();
+#ifdef DEBUG
+    Serial.println((String)"Changing active mode to: "+sel);
+#endif
+    if (activeMode != NULL)
+    {
+      delete activeMode;
+      activeMode=NULL;
+    }
+    switch (sel)
+    {
+            case 0:
+          {
+            activeMode = new StepSequencer ();
+            break;
   
-  void loop(){
+          }
+        case 1:
+          {
+            activeMode = new Flin();
+            break;
+          }
+        case 2:
+          {
+            activeMode = new FlipFlop();
+            break;
+          }
+        case 3:
+          {
+            activeMode = new Arp();
+            break;
+          }
+        case 4:
+          {
+            activeMode= new SimpleMIDIKeyboard();
+            break;
+          }
+        case 5:
+          {
+            activeMode= new HeartBeat(); 
+            break;
+          }
+        case 6:
+        {
+          activeMode = new Memory();
+          break;
+        }
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+
+  
+        break;
+      }
+    }//if sel<7
     
-  }
+}
+
+void loop() 
+{
+  //noInterrupts();
+
+  //interrupts();
+}
+
   
-  //---------------------------------------------------------------------
-  //--------------------INTERRUPT ROUTINES-------------------------------
-  //---------------------------------------------------------------------
-  
-  ISR(TIMER1_COMPA_vect) {//time 1 interrupt, at freq of 1kHz
-      sugarcube.timer1Routine();
-  }
