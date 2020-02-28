@@ -8,8 +8,7 @@ A grid-based midi instrument, with accelerometer and gyroscope for playful inter
 Idea and code based on SugarCube by Amanda Ghassaei:
 https://www.instructables.com/id/Sugarcube-MIDI-Controller/
 
-This version is an implementation is for the Adafruit Feather 32u4 Basic Proto Board (Atmega32u4) 
-with the Adafruit MusicMaker Featherwing Hat (VS1053B).
+This version is an implementation is for the Adafruit Feather 32u4 Basic Proto Board (Atmega32u4) with the Adafruit MusicMaker Featherwing Hat (VS1053B).
 
 
 The Goal is to have a portable MIDI Controller device with Audio output.
@@ -25,7 +24,8 @@ following code changes were done:
 - Memory Game added
 - Heartbeat added
 - PixelTilt removed, since we don't have accelerometer
-
+- Shake (to clear all) is simulated by pressing the rotary encoder
+- 3rd potentiomenter to control velocity(volume)
 
 
 Still to be done: 
@@ -35,6 +35,13 @@ Still to be done:
 - I2C Acceleromater is crashing the device, probably because of ISR
 - If I2C is working, re-introduce Accelerometer
 
+Hardware differences: 
 
+- Adafruit Feather 32u4 Basic Proto Board (Atmega32u4) with the Adafruit MusicMaker Featherwing Hat (VS1053B) 
+- Using low power LEDs: only one 74HC595 is needed
+- I2C Accelerometer, but not functional now
+- 3rd Potentiometer for volume
+- Rotary encoder with push button to change instruments and clear current mode
+- 3W Speakers
 
 
