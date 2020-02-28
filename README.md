@@ -5,7 +5,7 @@
 # Sugarcube-Arduino-Library
 A grid-based midi instrument, with accelerometer and gyroscope for playful interactions
 
-Idea and code based on the inital idea by Amanda Ghassaei:
+Idea and code based on SugarCube by Amanda Ghassaei:
 https://www.instructables.com/id/Sugarcube-MIDI-Controller/
 
 This version is an implementation is for the Adafruit Feather 32u4 Basic Proto Board (Atmega32u4) 
