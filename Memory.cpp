@@ -17,9 +17,9 @@ noteOn(67, 120,currentMidiChannel);
   metronom=0;
   counter=0;
   marioMode=false;
-  currentTempo=99;
+  currentTempo=60;
   noteOff(67, currentMidiChannel);
-  randomSeed(analogRead(A3));
+  randomSeed(analogRead(A3)|millis());
 }
 
 //super mario: 1/16 sec speed: 0.12, 0.17, 0.25: 1/8, 3/16, 1/4
@@ -113,14 +113,14 @@ void Memory::routine100Hz()
 
 byte Memory::getRandomButton()
 {
-  randomSeed(analogRead(A3)|millis());
+  //randomSeed(analogRead(A3)|millis());
   return random(0,16);
 }
 
 void Memory::correct() //play when memory done correctly
 {
   
-  if (toneLen == 15)
+  if (toneLen == 10)
   {
     marioMode=true;
     playbackMode=true;

@@ -20,7 +20,7 @@ FlipFlop::FlipFlop()
 
 void FlipFlop::pot1HasChanged(int val)
 {
-  xOffset = getOffsetFromPotVal(getPot1Val());
+  xOffset = getOffsetFromPotVal(val);
 #ifdef DEBUG
   Serial.print("xOffset: ");
   Serial.println(xOffset);
@@ -30,8 +30,12 @@ void FlipFlop::pot1HasChanged(int val)
 
 void FlipFlop::pot2HasChanged(int val)
 {
+  byte tempos[]={10,30,50,70, 90, 110,130,150};
+  //byte tempos[]={25,50,75,100,125,150,175,200};
   //currentTempo=maxTempoFromPotVal(int val);
-          currentTempo = constrain(map(val, 0, 1024, 0,8), 0, 8);
+          currentTempo = tempos[val>>7];//constrain(map(val, 0, 1024, 0,8), 0, 8);
+      for (i=0; i<4; i++)
+          column[i].tempo=tempos[val>>7];
           #ifdef DEBUG
         Serial.println((String)"Change tempo to: "+ currentTempo);
         #endif
@@ -48,11 +52,15 @@ void FlipFlop::wasShaken()
 }
 void FlipFlop::buttonPressed(byte xPos, byte yPos)
 {
-  byte absPosition = xPos+xOffset;
+    byte absPosition = xPos+xOffset;
+  Serial.println((String)"Absolute Position: "+absPosition);
 
   if (column[absPosition].activated)//switch off
   {
-    turnOffLED(column[absPosition].currentHeight, yPos);
+    //turnOffLED(column[absPosition].currentHeight, yPos);
+    //TODO
+    setLEDCol(xPos, 0);
+
     if (column[absPosition].playedTone) //switch of playing tone
     {
       noteOff(column[absPosition].playedTone, column[absPosition].channel);
@@ -66,22 +74,28 @@ void FlipFlop::buttonPressed(byte xPos, byte yPos)
 
     column[absPosition].activated = true;
     column[absPosition].goingUp = false;
-    column[absPosition].height = column[absPosition].currentHeight = 1 << (3 - yPos);
-    column[absPosition].tempo = 100; //1 second tempo
+    column[absPosition].height = 3-yPos;
+    column[absPosition].tempo = 50; //1 second tempo
     column[absPosition].channel = currentMidiChannel;
     column[absPosition].playedTone = 0;
 
 #ifdef DEBUG
-    Serial.println((String)"Button " + xPos + "/" + yPos + " absolutePosition: " + absPosition + " Height: " + (1 << (3 - yPos)));
+    Serial.println((String)"Button " + xPos + "/" + yPos + " absolutePosition: " + absPosition + " Height: " + (3-yPos));
 #endif
   }
+}
+
+
+void FlipFlop::buttonReleased(byte xPos, byte yPos)
+{
+
 }
 
 void FlipFlop::updateColumn(byte colNbr)
 {
   if (column[colNbr].activated)
   {
-        //Serial.println(currentTempo%(column[colNbr].tempo/2));
+        //Serial.println(currentTempo%(column[colNbr].tempo));
         
     //check if tempo elapsed
     if (currentTempo%column[colNbr].tempo==0)//to keep all columns in sync
@@ -100,11 +114,14 @@ void FlipFlop::updateColumn(byte colNbr)
         }
         else//we are on the way up
         {
+          
           column[colNbr].currentHeight++;
+          
           #ifdef DEBUG
           Serial.print("We are going UP ");
           Serial.println(column[colNbr].currentHeight);
           #endif
+          
         }
   
       }
@@ -117,16 +134,18 @@ void FlipFlop::updateColumn(byte colNbr)
           {
             column[colNbr].goingUp = true;
           }
-          column[colNbr].playedTone = notes[colNbr];
-          noteOn(column[colNbr].playedTone, velocity, column[colNbr].channel);
+          //column[colNbr].playedTone = notes[colNbr];
+          //noteOn(column[colNbr].playedTone, velocity, column[colNbr].channel);
         }
         else//we are on the way down
         {
           column[colNbr].currentHeight--;
+          
           #ifdef DEBUG
           Serial.print("We are going DOWN ");
           Serial.println(column[colNbr].currentHeight);
           #endif
+          
         }
       }
     }
@@ -149,6 +168,8 @@ void FlipFlop::updateLED(byte colNbr)
 byte colLED[]={0,1,2,4,8};
   if (column[colNbr+xOffset].activated)
     setLEDCol(colNbr, colLED[column[colNbr + xOffset].currentHeight+1]);
+  else
+    setLEDCol(colNbr, 0);
 }
 
 void FlipFlop::routine100Hz()
@@ -195,8 +216,11 @@ void FlipFlop::clearAllStorage()
   clearLEDs();
 }
 
-byte FlipFlop::getOffsetFromPotVal(byte pos)
+byte FlipFlop::getOffsetFromPotVal(int pos)
 {
+  
+  //Serial.println(pos);
+  //return (pos+xOffset)>>6;
   return constrain(map(pos, 0, 1023, 0, 12), 0, 12);//0-12 represent 0-15 columns
-  //return (pos+_xOffset)&15;
+  //return (pos+xOffset)&15;
 }

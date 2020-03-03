@@ -114,7 +114,7 @@ class FlipFlop: public Delegate {
     FlipFlop();
 
     void buttonPressed(byte xPos, byte yPos);
-    //void buttonReleased(byte xPos, byte yPos); //for later: duration = tempo
+    void buttonReleased(byte xPos, byte yPos); //for later: duration = tempo
     void pot1HasChanged(int val);//base note
     void pot2HasChanged(int val);//pitchbend
     void instrumentHasChanged(byte val);
@@ -141,7 +141,7 @@ class FlipFlop: public Delegate {
     void clearAllStorage();
     byte xOffset;
     byte absolutePosition(byte pos);
-    byte getOffsetFromPotVal(byte pos);
+    byte getOffsetFromPotVal(int pos);
     unsigned int currentTempo;
     byte tempo;
     

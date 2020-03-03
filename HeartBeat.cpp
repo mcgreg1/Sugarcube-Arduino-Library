@@ -48,8 +48,12 @@ void HeartBeat::buttonReleased(byte xPos, byte yPos)
   byte tempos[]={25,50,75,100,125,150,175,200};
   pixel[yPos*4+xPos].buttonPressed=false;
   //based on pressTime adjust Tempo
-  byte calTemp=constrain(pixel[yPos*4+xPos].tempo/25, 0, 7);
-  pixel[yPos*4+xPos].tempo=calTemp;
+  byte calTemp=(pixel[yPos*4+xPos].tempo*4)/100;
+  //byte calTemp=constrain(pixel[yPos*4+xPos].tempo/25, 0, 7);
+  #ifdef DEBUG
+  Serial.println((String)"Calculated tempo: "+calTemp+"="+tempos[calTemp]);
+  #endif
+  pixel[yPos*4+xPos].tempo=tempos[calTemp];
   noteOff(pixel[yPos*4+xPos].note, pixel[yPos*4+xPos].channel);
   turnOffLED(xPos,yPos);
   
@@ -66,11 +70,11 @@ void HeartBeat::pot1HasChanged(int val)
 
 void HeartBeat::pot2HasChanged(int val)
 {
-  //byte tempos[]={25,50,75,100,125,150,175,200};
+  byte tempos[]={25,50,75,100,125,150,175,200};
   if (currentLED<16)
   {
-  //pixel[currentLED].tempo = constrain(map(val, 0, 1024, 0,8), 0, 8);
-  //Serial.println((String)"Change tempo to: "+ button[currentLED].tempo);
+  pixel[currentLED].tempo = tempos[val>>7];//10 bit to 3 bit
+  Serial.println((String)"Change tempo to: "+ pixel[currentLED].tempo);
   }
 }
 void HeartBeat::instrumentHasChanged(byte val)
@@ -90,6 +94,9 @@ void HeartBeat::updatePixel(byte pos)
     if (pixel[pos].buttonPressed) //count the ticks as tempo
     {
       pixel[pos].tempo++;
+      #ifdef DEBUG
+      Serial.println((String)"Current tempo: "+pixel[pos].tempo);
+      #endif
       noteOn(pixel[pos].note, velocity, pixel[pos].channel);
       turnOnLED(pos);
     }

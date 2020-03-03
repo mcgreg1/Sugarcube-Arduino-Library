@@ -68,12 +68,14 @@ void noteOn(byte note, byte velocity, byte channel)
 
 void noteOff(byte note, byte channel)
 {
-  sendMIDI(MIDI_NOTE_OFF|channel, note, 0);//note on message with zero velocity == noteoff
+  sendMIDI(MIDI_NOTE_OFF|channel, note, velocity);//note on message with zero velocity == noteoff
   #ifdef DEBUG
         Serial.print("\tNote Off: ");
         Serial.print(note);
         Serial.print(" channel: ");
-        Serial.println(channel);
+        Serial.print(channel);
+                Serial.print(" velocity: ");
+        Serial.println(velocity);
  #endif
 
 }
@@ -84,6 +86,9 @@ void allNotesOff(byte channel)
    VS1053_MIDI.write(MIDI_ALL_SOUND_OFF);
    noteOn(65, 100, channel);
    noteOff(65, channel);
+   #ifdef DEBUG
+   Serial.println("All notes OFF!!");
+   #endif
 }
 
 void pitchBend(byte pitchbend, byte channel)

@@ -5,7 +5,7 @@
 #define SugarCube_h
 
 
-#include <TimerThree.h>             //for the timer Interrupt
+#include <TimerOne.h>             //for the timer Interrupt
 #include <avr/wdt.h>                //for SW reset
 
 

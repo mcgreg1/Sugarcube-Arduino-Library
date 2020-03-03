@@ -3,11 +3,16 @@
 
 #include "SugarCube.h"
 
+#include <RotaryEncoder.h>
+
 //Rotary encoder values
 byte instrument;
 bool instrumentButton, instrumentLast;
-unsigned int currentRotaryTime=0;
+
+
 unsigned int rotaryButtonTime=0;
+RotaryEncoder encoder(16, 15);
+unsigned int currentRotaryTime=0;
 
 //Analog pot values
 int pot1, pot2, vol, volRaw;
@@ -15,7 +20,7 @@ byte i=0;
 byte j=0;
 byte k=0;
 
-byte analogTolerance=10;
+byte analogTolerance=15;
 
 
 //storage for led states, 4 bytes
@@ -70,13 +75,14 @@ void pot2HasChanged(int val)
 
 void volHasChanged(int val)
 {
-  #ifdef DEBUG
-  Serial.println((String)"Volume: "+val);
-  #endif
   //activeMode->volHasChanged(val);
   //TODO: change the MIDI volume
   //change velocity instead of volume
-  velocity=val;
+  velocity=constrain(map(val, 0,1023, 25, 127), 25, 127);
+
+    #ifdef DEBUG
+  Serial.println((String)"Velocity: "+velocity);
+  #endif
   /*
   for (i=0; i<16; i++)
     midiSetChannelVolume(i, val);
@@ -107,18 +113,22 @@ void instrumentButtonHasChanged()
   delete activeMode;
   activeMode = NULL;
   clearLEDs();
-
   for (i=0; i<16; i++)
+  {
     allNotesOff(i);
+    instrumentPerChannel[i]=0;
+  }
+
+  //for (i=0; i<16; i++)
+    //allNotesOff(i);
 
     
-  VS1053_MIDI.write(MIDI_CHAN_MSG);
-  VS1053_MIDI.write(MIDI_RESET_ALL_CONTROLLERS);
+  //VS1053_MIDI.write(MIDI_CHAN_MSG);
+  //VS1053_MIDI.write(MIDI_RESET_ALL_CONTROLLERS);
   //wait for input
 
 
-  //measure the presstime
-  rotaryButtonTime=millis();
+
 }
 
 int getPot1Val()
@@ -161,17 +171,21 @@ void checkAnalogPins()
  
     //check Volume
 
-    newVal=analogValFromPin(volPin, vol);
+    newVal=analogValFromPin(volPin, volRaw);
     if (volRaw != newVal)
     {
+      volRaw=newVal;
+      /*
       byte scaledNewVal = constrain(map(newVal, 0, 1023, VELOCITY_MIN, 127), VELOCITY_MIN, 127);
       byte scaledOldVal = constrain(map(volRaw, 0, 1023, VELOCITY_MIN, 127), VELOCITY_MIN, 127);
       if (abs(scaledOldVal-scaledNewVal)>1) //somehow my volume flips between two values
       {
         vol=scaledNewVal;
-        volHasChanged(scaledNewVal);
-      }
-      volRaw=newVal;
+        Serial.println((String)"Volumeeeee: "+volRaw);
+        */
+        volHasChanged(volRaw);
+      //}
+      //volRaw=newVal;
     }
 
 
@@ -179,6 +193,14 @@ void checkAnalogPins()
 //the state is delayed by ROTARY_IDLE_TIME, so we don't send MIDI commands while it's rotating
 void checkRotaryEncoder()
 {
+  /*encoder.tick();
+  int newPos=encoder.getPosition();
+  if (instrument!=newPos)
+  {
+    instrument=newPos;
+    Serial.println((String)"NEW enc pos: "+newPos);
+  }
+    */
       //check Instrument
     bool n = digitalRead(instLPin);
     if ((instrumentLast == LOW) && (n == HIGH)) 
@@ -199,39 +221,50 @@ void checkRotaryEncoder()
         instrument++;
      
       }
-      //Serial.print (encoder0Pos);
+      //Serial.print (instrument);
       //Serial.print ("/");
 
       //wait if still rotating
-      
-      currentRotaryTime=millis();
-      
+      instrumentHasChanged(instrument);
+      //currentRotaryTime=millis();
+      //
     }
     instrumentLast=n;
+    /*
     unsigned int diff = millis()-currentRotaryTime;
+    Serial.println((String)"Current diff: "+diff);
     if (diff>ROTARY_IDLE_TIME && diff<2*ROTARY_IDLE_TIME)
     {
       instrumentHasChanged(instrument);
       currentRotaryTime=0;
     }
     
-
+*/
     //instrumentButton = digitalRead(instButtonPin);
     if (!digitalRead(instButtonPin))
     {
+      
       instrumentButtonHasChanged();
+        //measure the presstime
+
     }
-    else//if BUTTON_RESET_TIME reached, reset the Atmega32u4
+    /*
+    else //if BUTTON_RESET_TIME reached, reset the Atmega32u4
     {
+      rotaryButtonTime=millis()-rotaryButtonTime;
       #ifdef DEBUG
-      Serial.println((String)"Presstime: "+rotaryButtonTime);
+      if (buttonWasPressed)
+        Serial.println((String)"Presstime: "+rotaryButtonTime);
       #endif
+      /*
       if (rotaryButtonTime>BUTTON_RESET_TIME)
       {
         rotaryButtonTime=0;
         softwareReset();
       }
-    }
+      */
+
+    //}
 }
 
 void softwareReset()

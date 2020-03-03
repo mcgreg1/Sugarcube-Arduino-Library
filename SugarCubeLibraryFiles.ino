@@ -23,6 +23,9 @@ void setup()
   #endif
   VS1053_MIDI.begin(31250);//set midi baud 
 
+  VS1053_MIDI.write(MIDI_CHAN_MSG);
+  VS1053_MIDI.write(MIDI_RESET_ALL_CONTROLLERS);
+
   midiSetChannelBank(0, VS1053_BANK_DEFAULT);
   midiSetChannelVolume(0, 127);
   midiSetInstrument(0, DEFAULT_INSTRUMENT);
@@ -43,8 +46,8 @@ void setup()
   
   initValues();
 
-  Timer3.initialize(1000);
-  Timer3.attachInterrupt(timer1Routine);
+  Timer1.initialize(2500);
+  Timer1.attachInterrupt(timer1Routine);
 
     
 }
@@ -101,17 +104,21 @@ void routine100Hz()
    // shift();
     //updateLEDs();
     hardwareIter++;
-    if (hardwareIter>3){
+    if (hardwareIter>3)
+    {
       hardwareIter = 0;
+      routine100Hz();
     }
     checkAnalogPins();
     
     checkRotaryEncoder();
+    /*
     if (++timer100Hz>9) 
     {
       routine100Hz();
       timer100Hz = 0;
     }
+    */
   }
 
 void buttonPressed(byte xPos, byte yPos)
