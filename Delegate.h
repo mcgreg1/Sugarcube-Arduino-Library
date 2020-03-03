@@ -22,8 +22,6 @@ class Delegate//parent class - allows message to be sent from sugarcube class in
     void virtual yAccHasChanged(int val){}
     void virtual pot1HasChanged(int val){}
     void virtual pot2HasChanged(int val){}
-    //TODO: Volume and instrument are global
-    void virtual volHasChanged(int val){}
     void virtual instrumentHasChanged(byte val){}
     
     void virtual wasShaken(){}

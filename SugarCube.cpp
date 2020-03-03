@@ -75,18 +75,14 @@ void pot2HasChanged(int val)
 
 void volHasChanged(int val)
 {
-  //activeMode->volHasChanged(val);
-  //TODO: change the MIDI volume
-  //change velocity instead of volume
-  velocity=constrain(map(val, 0,1023, 25, 127), 25, 127);
+  velocity= val>>3;
+  //TODO: make byte operations like velocity>>3: 0-127
+  //velocity=constrain(map(val, 0,1023, 25, 127), 25, 127);
 
     #ifdef DEBUG
   Serial.println((String)"Velocity: "+velocity);
   #endif
-  /*
-  for (i=0; i<16; i++)
-    midiSetChannelVolume(i, val);
-    */
+
 }
 void instrumentHasChanged(byte val)
 {
@@ -143,8 +139,12 @@ int getPot2Val()
 
 int analogValFromPin(byte pinNum, int oldVal)
 {
+  //TODO: byte operation
   int newVal = analogRead(pinNum);
-  if (abs(newVal-oldVal)>analogTolerance){
+  //16 values means 2^4
+  //if (newVal>>4 != oldVal>>4
+  if ((abs(newVal-oldVal))>>4)
+  {
     return newVal;
   }
   return oldVal;
@@ -175,17 +175,8 @@ void checkAnalogPins()
     if (volRaw != newVal)
     {
       volRaw=newVal;
-      /*
-      byte scaledNewVal = constrain(map(newVal, 0, 1023, VELOCITY_MIN, 127), VELOCITY_MIN, 127);
-      byte scaledOldVal = constrain(map(volRaw, 0, 1023, VELOCITY_MIN, 127), VELOCITY_MIN, 127);
-      if (abs(scaledOldVal-scaledNewVal)>1) //somehow my volume flips between two values
-      {
-        vol=scaledNewVal;
-        Serial.println((String)"Volumeeeee: "+volRaw);
-        */
-        volHasChanged(volRaw);
-      //}
-      //volRaw=newVal;
+      volHasChanged(volRaw);
+
     }
 
 
@@ -202,10 +193,10 @@ void checkRotaryEncoder()
   }
     */
       //check Instrument
-    bool n = digitalRead(instLPin);
+    bool n = digitalReadFast(instLPin);
     if ((instrumentLast == LOW) && (n == HIGH)) 
     {
-      if (digitalRead(instRPin) == LOW) 
+      if (digitalReadFast(instRPin) == LOW) 
       {
         if (instrument<=0)
           instrument=INSTRUMENT_MAX;
@@ -241,7 +232,7 @@ void checkRotaryEncoder()
     
 */
     //instrumentButton = digitalRead(instButtonPin);
-    if (!digitalRead(instButtonPin))
+    if (!digitalReadFast(instButtonPin))
     {
       
       instrumentButtonHasChanged();

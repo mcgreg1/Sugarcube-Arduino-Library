@@ -33,7 +33,7 @@ void midiSetInstrument(uint8_t chan, uint8_t inst);
 byte createMIDINoteInFourths(byte xPos, byte yPos, byte baseNote);
 
 void pitchBend(byte pitchbend, byte channel);
-void pitchbendFromAnalogVal(int val, int channel);
+void pitchbendFromAnalogVal(int val, byte channel);
 void noteOff(byte note, byte channel);
 void noteOn(byte note, byte velocity, byte channel);
 void allNotesOff(byte channel);

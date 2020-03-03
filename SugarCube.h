@@ -13,7 +13,7 @@
 #include "Delegate.h"
 #include "Utilities.h"
 #include "Midi.h"
-
+#include "lib/digitalWriteFast/digitalWriteFast.h" //for fast shift handling
 
 //this firmware will cause the buttons to light up momentarily while they are pressed.
 

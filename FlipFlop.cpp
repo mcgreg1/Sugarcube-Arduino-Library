@@ -221,6 +221,7 @@ byte FlipFlop::getOffsetFromPotVal(int pos)
   
   //Serial.println(pos);
   //return (pos+xOffset)>>6;
+  //TODO: bit operations
   return constrain(map(pos, 0, 1023, 0, 12), 0, 12);//0-12 represent 0-15 columns
   //return (pos+xOffset)&15;
 }

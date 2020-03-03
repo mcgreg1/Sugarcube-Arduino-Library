@@ -96,10 +96,10 @@ void pitchBend(byte pitchbend, byte channel)
   sendMIDI(224|channel, 0, pitchbend);//command&channel, lsb, msb
 }
 
-void pitchbendFromAnalogVal(int val, int channel)
+void pitchbendFromAnalogVal(int val, byte channel)
 {
-  byte pitchbend = constrain(map(val, 0, 1023, 0, 127), 0, 127);
-  pitchBend(pitchbend, channel);
+  //byte pitchbend = constrain(map(val, 0, 1023, 0, 127), 0, 127);
+  pitchBend(val>>3, channel);
 
 }
 

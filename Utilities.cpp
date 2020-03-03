@@ -5,6 +5,8 @@
 #include "SugarCube.h"
 
 
+
+
 //translate button location (x,y) to MIDI note, based on fourths: http://www.youtube.com/watch?v=uQm3xbTxJRc
 byte createMIDINoteInFourths(byte xPos, byte yPos, byte baseNote)
 {
@@ -13,19 +15,11 @@ byte createMIDINoteInFourths(byte xPos, byte yPos, byte baseNote)
 
 byte calculateBaseNoteFromPotVal(int val)
 {
-  //return byte(25+(val>>5));//returns #s between 25 and 56
-return constrain(map(val, 0, 1023, 45, 70), 45, 70);
+  return byte(39+(val>>5));//returns #s between 29 and 70
+//return constrain(map(val, 0, 1023, 45, 70), 45, 70);
 }
 
   
-  /*
-  byte velocityFromAnalogVal(int val)
-  {
-    byte velocity = val>>3;
-    return constrain(velocity, 10, 127);//constrain velocity to be at least 10
-  }
-  */
-
   
 byte xOffsetFromPotVal(int val)
 {
@@ -50,23 +44,22 @@ void shift(byte i)
   buttonLast[i] = buttonCurrent[i];
   byte dataToSend = (1 << (i+4)) | (15 & ~ledData[i]);
   // set latch pin low so the LEDs don't change while sending in bits
-  digitalWrite(ledLatchPin, LOW);
+  digitalWriteFast(ledLatchPin, LOW);
   // shift out the bits of dataToSend 
   //shiftOut(ledDataPin, ledClockPin, LSBFIRST, dataToSend);  
   for (byte j=0;j<8;j++){
-    digitalWrite(ledClockPin,LOW);
-    //digitalWrite(ledDataPin,((dataToSend>>j)&1));
+    digitalWriteFast(ledClockPin,LOW);
     if ((dataToSend>>j)&1){
-      digitalWrite(ledDataPin,HIGH);
+      digitalWriteFast(ledDataPin,HIGH);
     }
     else{
       //PORTD&=B01111111;//7 to low
-      digitalWrite(ledDataPin,LOW);
+      digitalWriteFast(ledDataPin,LOW);
     }
-    digitalWrite(ledClockPin,HIGH);
+    digitalWriteFast(ledClockPin,HIGH);
   }
   //set latch pin high so the LEDs will receive new data
-  digitalWrite(ledLatchPin, HIGH);
+  digitalWriteFast(ledLatchPin, HIGH);
   
   // SlowDown is put in here to waste a little time while we wait for the state of the output
   // pins to settle.  Without this time wasting loop, a single button press would show up as
@@ -79,25 +72,25 @@ void shift(byte i)
     
   //once one row has been set high, receive data from buttons
   //set latch pin high
-  digitalWrite(buttonLatchPin, HIGH);
+  digitalWriteFast(buttonLatchPin, HIGH);
   //shift in data
   //buttonCurrent[i] = shiftIn(buttonDataPin, buttonClockPin, LSBFIRST) >> 3;
   for (byte j=0;j<4;j++){
-    digitalWrite(buttonClockPin,LOW);
-    digitalWrite(buttonClockPin,HIGH);
+    digitalWriteFast(buttonClockPin,LOW);
+    digitalWriteFast(buttonClockPin,HIGH);
   }
   for (byte j=0;j<4;j++){
-   digitalWrite(buttonClockPin,LOW);
-    if (digitalRead(buttonDataPin)){
+   digitalWriteFast(buttonClockPin,LOW);
+    if (digitalReadFast(buttonDataPin)){
       buttonCurrent[i]|=1<<j;
     }
     else{
       buttonCurrent[i]&=~(1<<j); 
     }
-    digitalWrite(buttonClockPin,HIGH);
+    digitalWriteFast(buttonClockPin,HIGH);
   }
   //latchpin low
-  digitalWrite(buttonLatchPin, LOW);
+  digitalWriteFast(buttonLatchPin, LOW);
   
   for (byte j=0;j<4;j++){
     buttonCheck(i,j);
