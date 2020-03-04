@@ -30,19 +30,20 @@ void FlipFlop::pot1HasChanged(int val)
 
 void FlipFlop::pot2HasChanged(int val)
 {
-  byte tempos[]={10,30,50,70, 90, 110,130,150};
+  byte tempos[] = {10, 30, 50, 70, 90, 110, 130, 150};
   //byte tempos[]={25,50,75,100,125,150,175,200};
   //currentTempo=maxTempoFromPotVal(int val);
-          currentTempo = tempos[val>>7];//constrain(map(val, 0, 1024, 0,8), 0, 8);
-      for (i=0; i<4; i++)
-          column[i].tempo=tempos[val>>7];
-          #ifdef DEBUG
-        Serial.println((String)"Change tempo to: "+ currentTempo);
-        #endif
+  currentTempo = tempos[val >> 7]; //constrain(map(val, 0, 1024, 0,8), 0, 8);
+  for (i = 0; i < 16; i++)
+    column[i].tempo = tempos[val >> 7];
+#ifdef DEBUG
+  Serial.println((String)"Change tempo to: " + currentTempo);
+#endif
 }
 void FlipFlop::instrumentHasChanged(byte val)
 {
-  //switch off current colummn
+  //TODO: switch off current colummn
+  
 
 }
 void FlipFlop::wasShaken()
@@ -52,8 +53,8 @@ void FlipFlop::wasShaken()
 }
 void FlipFlop::buttonPressed(byte xPos, byte yPos)
 {
-    byte absPosition = xPos+xOffset;
-  Serial.println((String)"Absolute Position: "+absPosition);
+  byte absPosition = xPos + xOffset;
+  Serial.println((String)"Absolute Position: " + absPosition);
 
   if (column[absPosition].activated)//switch off
   {
@@ -74,13 +75,13 @@ void FlipFlop::buttonPressed(byte xPos, byte yPos)
 
     column[absPosition].activated = true;
     column[absPosition].goingUp = false;
-    column[absPosition].height = 3-yPos;
+    column[absPosition].height = column[absPosition].currentHeight = 3 - yPos;
     column[absPosition].tempo = 50; //1 second tempo
     column[absPosition].channel = currentMidiChannel;
     column[absPosition].playedTone = 0;
 
 #ifdef DEBUG
-    Serial.println((String)"Button " + xPos + "/" + yPos + " absolutePosition: " + absPosition + " Height: " + (3-yPos));
+    Serial.println((String)"Button " + xPos + "/" + yPos + " absolutePosition: " + absPosition + " Height: " + (3 - yPos));
 #endif
   }
 }
@@ -95,35 +96,30 @@ void FlipFlop::updateColumn(byte colNbr)
 {
   if (column[colNbr].activated)
   {
-        //Serial.println(currentTempo%(column[colNbr].tempo));
-        
     //check if tempo elapsed
-    if (currentTempo%column[colNbr].tempo==0)//to keep all columns in sync
-    //if (column[colNbr].tempo == currentTempo)
+    if (currentTempo % column[colNbr].tempo == 0) //to keep all columns in sync
     {
       //Serial.println((String)"Current Tempo: "+currentTempo);
       //column[colNbr].tempo = 0;
       if (column[colNbr].goingUp)
-      { //we are at top, play tone and go down
+      { //we are at top, note off tone and go down
         if (column[colNbr].currentHeight == column[colNbr].height)
         {
           column[colNbr].goingUp = false;
-          column[colNbr].playedTone = notes[colNbr] + 1;
-          noteOn(column[colNbr].playedTone, velocity, column[colNbr].channel);
-  
+          noteOff(column[colNbr].playedTone, column[colNbr].channel);
+          column[colNbr].playedTone = 0;
         }
         else//we are on the way up
         {
-          
           column[colNbr].currentHeight++;
-          
-          #ifdef DEBUG
+
+#ifdef DEBUG
           Serial.print("We are going UP ");
           Serial.println(column[colNbr].currentHeight);
-          #endif
-          
+#endif
+
         }
-  
+
       }
       else//going down
       { //we are at bottom, play tone and go up
@@ -134,30 +130,27 @@ void FlipFlop::updateColumn(byte colNbr)
           {
             column[colNbr].goingUp = true;
           }
-          //column[colNbr].playedTone = notes[colNbr];
-          //noteOn(column[colNbr].playedTone, velocity, column[colNbr].channel);
+          column[colNbr].playedTone = notes[colNbr];
+          noteOn(column[colNbr].playedTone, velocity, column[colNbr].channel);
         }
         else//we are on the way down
         {
           column[colNbr].currentHeight--;
-          
-          #ifdef DEBUG
+
+#ifdef DEBUG
           Serial.print("We are going DOWN ");
           Serial.println(column[colNbr].currentHeight);
-          #endif
-          
+#endif
+
         }
       }
     }
-    else if (currentTempo%(column[colNbr].tempo/2)==0) //half tempo to switch off
+    //toggle pixel, use half tempo to switch off
+    else if (!column[colNbr].height && currentTempo % (column[colNbr].tempo / 2) == 0)
     {
-      //Serial.println((String)"Current HalfTempo: "+currentTempo);
-      if (column[colNbr].playedTone)
-      {
-        noteOff(column[colNbr].playedTone, column[colNbr].channel);
-        column[colNbr].playedTone = 0;
-      }
-  
+      noteOff(column[colNbr].playedTone, column[colNbr].channel);
+      column[colNbr].playedTone = 0;
+
     }
   }//if activated
 
@@ -165,9 +158,21 @@ void FlipFlop::updateColumn(byte colNbr)
 
 void FlipFlop::updateLED(byte colNbr)
 {
-byte colLED[]={0,1,2,4,8};
-  if (column[colNbr+xOffset].activated)
-    setLEDCol(colNbr, colLED[column[colNbr + xOffset].currentHeight+1]);
+  byte colLED[] = {0, 1, 2, 4, 8};
+  if (column[colNbr + xOffset].activated)
+  {
+    if (column[colNbr + xOffset].height)
+    {
+      setLEDCol(colNbr, colLED[column[colNbr + xOffset].currentHeight + 1]);
+    }
+    else//toggle Pixel
+    {
+      if (column[colNbr + xOffset].playedTone)
+        turnOffLED(colNbr + xOffset, 3);
+      else
+        turnOnLED(colNbr + xOffset, 3);
+    }
+  }
   else
     setLEDCol(colNbr, 0);
 }
@@ -175,8 +180,8 @@ byte colLED[]={0,1,2,4,8};
 void FlipFlop::routine100Hz()
 {
 
-  if (++currentTempo==21000)//kgV between tempos
-      currentTempo=0;
+  if (++currentTempo == 21000) //kgV between tempos
+    currentTempo = 0;
   for (byte i = 0; i < 16; i++)
   {
     updateColumn(i);
@@ -192,7 +197,7 @@ void FlipFlop::routine100Hz()
       {
       byte tempos[]={25,50,75,100,125,150,175,200};
       return tempos[constrain(map(val, 0, 1023, 0, 8),0,8)];
-        
+
         return ((val>>6) + 1)*5;
       }
 */
@@ -209,7 +214,7 @@ void FlipFlop::clearAllStorage()
     column[i].activated = false;
     column[i].goingUp = false;
     column[i].height = column[i].currentHeight = 0;
-    column[i].tempo = 99; //1 second tempo
+    column[i].tempo = 100; //1 second tempo
     column[i].channel = 0;
 
   }
@@ -218,7 +223,7 @@ void FlipFlop::clearAllStorage()
 
 byte FlipFlop::getOffsetFromPotVal(int pos)
 {
-  
+
   //Serial.println(pos);
   //return (pos+xOffset)>>6;
   //TODO: bit operations

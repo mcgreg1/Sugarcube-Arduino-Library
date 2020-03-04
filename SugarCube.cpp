@@ -76,7 +76,6 @@ void pot2HasChanged(int val)
 void volHasChanged(int val)
 {
   velocity= val>>3;
-  //TODO: make byte operations like velocity>>3: 0-127
   //velocity=constrain(map(val, 0,1023, 25, 127), 25, 127);
 
     #ifdef DEBUG
@@ -139,11 +138,10 @@ int getPot2Val()
 
 int analogValFromPin(byte pinNum, int oldVal)
 {
-  //TODO: byte operation
+
   int newVal = analogRead(pinNum);
-  //16 values means 2^4
-  //if (newVal>>4 != oldVal>>4
-  if ((abs(newVal-oldVal))>>4)
+  //8 values can be off means 2^3
+  if ((abs(newVal-oldVal))>>3)
   {
     return newVal;
   }
