@@ -3,17 +3,12 @@
 
 #include "SugarCube.h"
 
-#include <RotaryEncoder.h>
 
 //Rotary encoder values
 byte instrument;
 bool instrumentButton, instrumentLast;
 
-
-unsigned int rotaryButtonTime=0;
-RotaryEncoder encoder(16, 15);
-unsigned int currentRotaryTime=0;
-
+int hiddenFunctions=0;
 //Analog pot values
 int pot1, pot2, vol, volRaw;
 byte i=0;
@@ -219,16 +214,6 @@ void checkRotaryEncoder()
       //
     }
     instrumentLast=n;
-    /*
-    unsigned int diff = millis()-currentRotaryTime;
-    Serial.println((String)"Current diff: "+diff);
-    if (diff>ROTARY_IDLE_TIME && diff<2*ROTARY_IDLE_TIME)
-    {
-      instrumentHasChanged(instrument);
-      currentRotaryTime=0;
-    }
-    
-*/
     //instrumentButton = digitalRead(instButtonPin);
     if (!digitalReadFast(instButtonPin))
     {
@@ -258,22 +243,15 @@ void checkRotaryEncoder()
 
 void softwareReset()
 {
-  /* microcontroller forum 
-  cli();            // disable interrupts 
-wdt_enable(WDTO_15MS);  // reset via watchdog 
-_delay_ms(100);    // wait until reset occurs
-
-
-*/
-#ifdef DEBUG
-Serial.println("+++++++++++++++Going to reset the board!!!+++++++++++++++");
-#endif
-//Microchip.com website
-  do                          
-  {                           
-      wdt_enable(WDTO_15MS);  
-      for(;;)                 
-      {                       
-      }                       
-  } while(0);
+  #ifdef DEBUG
+  Serial.println("+++++++++++++++Going to reset the board!!!+++++++++++++++");
+  #endif
+  //Microchip.com website
+    do                          
+    {                           
+        wdt_enable(WDTO_15MS);  
+        for(;;)                 
+        {                       
+        }                       
+    } while(0);
 }

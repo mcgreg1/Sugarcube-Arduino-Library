@@ -168,6 +168,14 @@ void playSequenceFromNotes(byte metronom, byte *toneMem, byte len, byte lowestTo
     }
     
 }
+void resetBoard()
+{
+  pinMode(VS1053_RESET, OUTPUT);
+  digitalWrite(VS1053_RESET, LOW);
+  delay(10);
+  digitalWrite(VS1053_RESET, HIGH);
+  delay(10);
+}
 
 void playSequenceFromPosition(byte metronom, byte *toneMem, byte len, byte baseNote)
 {

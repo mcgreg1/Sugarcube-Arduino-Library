@@ -11,7 +11,7 @@
 #include "SugarCube.h"
 
 
-#define APPSCOUNT 7
+#define APPSCOUNT 6
 
 
 void setup() 
@@ -48,7 +48,7 @@ void setup()
 
   Timer1.initialize(2500);
   Timer1.attachInterrupt(timer1Routine);
-
+  
     
 }
 void initValues()
@@ -131,6 +131,7 @@ void buttonPressed(byte xPos, byte yPos)
       activeMode->buttonPressed(xPos,yPos);
     }
   //turnOnLED(xPos,yPos);
+  hiddenFunctions=hiddenFunctions+(yPos*4+xPos);
 
 }
 
@@ -145,6 +146,7 @@ void buttonReleased(byte xPos, byte yPos)
     {
       changeActiveMode(yPos*4 + xPos);
     }
+    hiddenFunctions=0;
 }
 
 
@@ -164,15 +166,15 @@ void changeActiveMode(int sel)
     }
     switch (sel)
     {
-            case 0:
+
+        case 0:
           {
-            activeMode = new StepSequencer ();
+            activeMode= new SimpleMIDIKeyboard();
             break;
-  
           }
         case 1:
           {
-            activeMode = new Flin();
+            activeMode= new HeartBeat(); 
             break;
           }
         case 2:
@@ -182,23 +184,22 @@ void changeActiveMode(int sel)
           }
         case 3:
           {
-            activeMode = new Arp();
+            activeMode = new StepSequencer ();
             break;
           }
         case 4:
           {
-            activeMode= new SimpleMIDIKeyboard();
+            activeMode = new Arp();
             break;
           }
         case 5:
           {
-            activeMode= new HeartBeat(); 
+            activeMode = new Memory();
             break;
           }
         case 6:
         {
-          activeMode = new Memory();
-          break;
+
         }
         case 7:
         case 8:
@@ -214,6 +215,12 @@ void changeActiveMode(int sel)
         break;
       }
     }//if sel<7
+    else if (hiddenFunctions==(15+12)
+    {
+      Serial.println("***********************************************************");
+      Serial.println("***************ENTER THE SECRET ZONE***********************");
+      Serial.println("***********************************************************");
+    }
     
 }
 

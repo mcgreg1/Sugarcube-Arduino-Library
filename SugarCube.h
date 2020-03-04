@@ -69,7 +69,8 @@ extern int pot1, pot2, vol, volRaw;
 //Rotary encoder values
 extern byte instrument;
 extern bool instrumentButton, instrumentLast;
-extern unsigned int currentRotaryTime;
+extern int hiddenFunctions;
+
 
 //looping variables
 extern byte i,j,k;

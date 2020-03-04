@@ -26,6 +26,7 @@
 #define MIDI_CHAN_PROGRAM 0xC0
 #define MIDI_ALL_SOUND_OFF 0x78
 #define MIDI_RESET_ALL_CONTROLLERS 0x79
+#define VS1053_RESET 9
 
 void midiSetChannelBank(byte chan, byte bank);
 void midiSetChannelVolume(uint8_t chan, uint8_t vol);
