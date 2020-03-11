@@ -11,7 +11,12 @@
 #include "SugarCube.h"
 
 
+#ifdef INSTRUMENT_TEST
 #define APPSCOUNT 7
+#else
+#define APPSCOUNT 6
+#endif
+
 
 
 void setup() 
@@ -29,7 +34,8 @@ void setup()
   midiSetChannelBank(0, VS1053_BANK_DEFAULT);
   midiSetChannelVolume(0, 127);
   midiSetInstrument(0, DEFAULT_INSTRUMENT);
-
+  currentInstrument=DEFAULT_INSTRUMENT;
+  
   pinMode(ledLatchPin,OUTPUT);
   pinMode(ledClockPin,OUTPUT);
   pinMode(ledDataPin,OUTPUT);
@@ -55,9 +61,6 @@ void initValues()
 {
   clearLEDs();
   currentMidiChannel = 0;
-  //instrument=0;
-  //volRaw=0;
-  //vol=0;
   for (i = 0; i < 4; i++)
   {
     ledData[i] = 0;
@@ -93,7 +96,6 @@ void routine100Hz()
       else
         selectSig--;
 
-        
     }
     
 }
@@ -196,11 +198,12 @@ void changeActiveMode(int sel)
             break;
           }
         case 6:
+          #ifdef INSTRUMENT_TEST
         {
             activeMode = new InstrumentTest();
             break;
-
         }
+        #endif
         case 7:
         case 8:
         case 9:

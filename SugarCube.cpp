@@ -5,7 +5,7 @@
 
 
 //Rotary encoder values
-byte instrument;
+byte currentInstrument;
 bool instrumentButton, instrumentLast;
 
 int hiddenFunctions=0;
@@ -178,27 +178,29 @@ void checkAnalogPins()
 //the state is delayed by ROTARY_IDLE_TIME, so we don't send MIDI commands while it's rotating
 void checkRotaryEncoder()
 {
+  byte instList[] = {4,12,20,28,36,44,52,60,68,76,84,92,100,108,116,124};
       //check Instrument
     bool n = digitalReadFast(instLPin);
     if ((instrumentLast == LOW) && (n == HIGH)) 
     {
       if (digitalReadFast(instRPin) == LOW) 
       {
-        if (instrument<=0)
-          instrument=INSTRUMENT_MAX;
+        if (currentInstrument<=0)             //possible values 1-INSTRUMENT_MAX
+          currentInstrument=INSTRUMENT_MAX;
         else
-          instrument--;
+          currentInstrument--;
   
       } 
       else 
       {
-        if (instrument>=INSTRUMENT_MAX)
-          instrument=0;
+        if (currentInstrument>INSTRUMENT_MAX) //possible values 1-INSTRUMENT_MAX
+          currentInstrument=1;
           else
-        instrument++;
+        currentInstrument++;
      
       }
-      instrumentHasChanged(instrument);
+      instrumentHasChanged(instList[currentInstrument-1]);
+      //instrumentHasChanged(currentInstrument);
     }
     instrumentLast=n;
     if (!digitalReadFast(instButtonPin))

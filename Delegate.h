@@ -234,6 +234,7 @@ class SimpleMIDIKeyboard: public Delegate {
 
 };
 
+#ifdef INSTRUMENT_TEST
 class InstrumentTest: public Delegate {
   
   public:
@@ -260,6 +261,7 @@ class InstrumentTest: public Delegate {
 
 };
 
+#endif
 
 class StepSequencer: public Delegate {
 

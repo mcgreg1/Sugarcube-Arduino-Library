@@ -1,5 +1,5 @@
-//by Amanda Ghassaei 2012, modifications/adaptions by McGreg 2020
-
+//by McGreg 2020
+#ifdef INSTRUMENT_TEST
 
 #include "SugarCube.h"
 #include "Utilities.h"
@@ -107,3 +107,4 @@ void InstrumentTest::routine100Hz()
   }
 
 }
+#endif

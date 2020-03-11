@@ -4,18 +4,15 @@
 #ifndef SugarCube_h
 #define SugarCube_h
 
-
 #include <TimerOne.h>             //for the timer Interrupt
 //#include <avr/wdt.h>                //for SW reset
 
-
 //#include <Wire.h>                 // Must include Wire library for I2C
-#include "Delegate.h"
-#include "Utilities.h"
-#include "Midi.h"
+#include "Delegate.h"               // for different modes
+#include "Utilities.h"              // helper functions, low level LED/Button handling
+#include "Midi.h"                   // midi commands set
 #include "lib/digitalWriteFast/digitalWriteFast.h" //for fast shift handling
 
-//this firmware will cause the buttons to light up momentarily while they are pressed.
 
 //    A0 - 18 - 74HC595 clock pin (SH_CP)
 //    A1 - 19 - 74HC595 latch pin (ST_CP)
@@ -37,8 +34,9 @@
 
 #define DEBUG                   //for serial print commands
 
-#define INSTRUMENT_MAX 129      //1-128 Melodic 
-#define VELOCITY_MIN 60
+//#define INSTRUMENT_TEST         
+
+#define INSTRUMENT_MAX 16      //1-128 Melodic 
 #define DEFAULT_INSTRUMENT 60
 #define ROTARY_IDLE_TIME 1000   //1,5 seconds
 #define BUTTON_RESET_TIME 3000  //3 sec
@@ -67,7 +65,7 @@
 extern int pot1, pot2, vol, volRaw;
 
 //Rotary encoder values
-extern byte instrument;
+extern byte currentInstrument;
 extern bool instrumentButton, instrumentLast;
 
 //looping variables
