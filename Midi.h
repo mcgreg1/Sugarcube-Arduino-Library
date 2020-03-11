@@ -29,8 +29,8 @@
 #define VS1053_RESET 9
 
 void midiSetChannelBank(byte chan, byte bank);
-void midiSetChannelVolume(uint8_t chan, uint8_t vol);
-void midiSetInstrument(uint8_t chan, uint8_t inst);
+//void midiSetChannelVolume(uint8_t chan, uint8_t vol);
+//void midiSetInstrument(uint8_t chan, uint8_t inst);
 byte createMIDINoteInFourths(byte xPos, byte yPos, byte baseNote);
 
 void pitchBend(byte pitchbend, byte channel);

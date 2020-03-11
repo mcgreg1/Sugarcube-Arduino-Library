@@ -32,9 +32,10 @@ void setup()
   VS1053_MIDI.write(MIDI_RESET_ALL_CONTROLLERS);
 
   midiSetChannelBank(0, VS1053_BANK_DEFAULT);
-  midiSetChannelVolume(0, 127);
-  midiSetInstrument(0, DEFAULT_INSTRUMENT);
+  //midiSetChannelVolume(0, 127);
+  //midiSetInstrument(0, DEFAULT_INSTRUMENT);
   currentInstrument=DEFAULT_INSTRUMENT;
+  setInstrument(currentInstrument);
   
   pinMode(ledLatchPin,OUTPUT);
   pinMode(ledClockPin,OUTPUT);

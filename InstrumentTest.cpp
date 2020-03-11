@@ -1,9 +1,11 @@
 //by McGreg 2020
-#ifdef INSTRUMENT_TEST
+
 
 #include "SugarCube.h"
 #include "Utilities.h"
-      
+
+#ifdef INSTRUMENT_TEST
+
 InstrumentTest::InstrumentTest()
 {
 #ifdef DEBUG

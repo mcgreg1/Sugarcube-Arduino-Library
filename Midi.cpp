@@ -30,7 +30,7 @@ void sendMIDI(byte command, byte param1, byte param2)
   VS1053_MIDI.write(param2);
 
 }
-
+/*
 void midiSetInstrument(uint8_t chan, uint8_t inst) 
 {
   if (chan<16 && inst <128)
@@ -52,7 +52,7 @@ void midiSetChannelVolume(uint8_t chan, uint8_t vol)
     VS1053_MIDI.write(vol);
   }
 }
-
+*/
 void noteOn(byte note, byte velocity, byte channel)
 {
   sendMIDI(MIDI_NOTE_ON|channel, note, velocity);
