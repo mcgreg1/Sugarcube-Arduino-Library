@@ -11,7 +11,7 @@
 #include "SugarCube.h"
 
 
-#define APPSCOUNT 6
+#define APPSCOUNT 7
 
 
 void setup() 
@@ -131,7 +131,6 @@ void buttonPressed(byte xPos, byte yPos)
       activeMode->buttonPressed(xPos,yPos);
     }
   //turnOnLED(xPos,yPos);
-  hiddenFunctions=hiddenFunctions+(yPos*4+xPos);
 
 }
 
@@ -146,7 +145,6 @@ void buttonReleased(byte xPos, byte yPos)
     {
       changeActiveMode(yPos*4 + xPos);
     }
-    hiddenFunctions=0;
 }
 
 
@@ -199,6 +197,8 @@ void changeActiveMode(int sel)
           }
         case 6:
         {
+            activeMode = new InstrumentTest();
+            break;
 
         }
         case 7:
@@ -215,12 +215,6 @@ void changeActiveMode(int sel)
         break;
       }
     }//if sel<7
-    else if (hiddenFunctions==(15+12)
-    {
-      Serial.println("***********************************************************");
-      Serial.println("***************ENTER THE SECRET ZONE***********************");
-      Serial.println("***********************************************************");
-    }
     
 }
 

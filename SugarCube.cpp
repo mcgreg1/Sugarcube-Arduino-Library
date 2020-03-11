@@ -40,8 +40,9 @@ byte currentMidiChannel=0;
 
 byte selectSig=0;
 bool selectSigForward=true;
-unsigned int counter=0;
+//unsigned long int counter=0;
 Delegate *activeMode = NULL;
+unsigned long idleCounter=0;
 
 
 
@@ -177,14 +178,6 @@ void checkAnalogPins()
 //the state is delayed by ROTARY_IDLE_TIME, so we don't send MIDI commands while it's rotating
 void checkRotaryEncoder()
 {
-  /*encoder.tick();
-  int newPos=encoder.getPosition();
-  if (instrument!=newPos)
-  {
-    instrument=newPos;
-    Serial.println((String)"NEW enc pos: "+newPos);
-  }
-    */
       //check Instrument
     bool n = digitalReadFast(instLPin);
     if ((instrumentLast == LOW) && (n == HIGH)) 
@@ -205,42 +198,18 @@ void checkRotaryEncoder()
         instrument++;
      
       }
-      //Serial.print (instrument);
-      //Serial.print ("/");
-
-      //wait if still rotating
       instrumentHasChanged(instrument);
-      //currentRotaryTime=millis();
-      //
     }
     instrumentLast=n;
-    //instrumentButton = digitalRead(instButtonPin);
     if (!digitalReadFast(instButtonPin))
     {
       
       instrumentButtonHasChanged();
-        //measure the presstime
 
     }
-    /*
-    else //if BUTTON_RESET_TIME reached, reset the Atmega32u4
-    {
-      rotaryButtonTime=millis()-rotaryButtonTime;
-      #ifdef DEBUG
-      if (buttonWasPressed)
-        Serial.println((String)"Presstime: "+rotaryButtonTime);
-      #endif
-      /*
-      if (rotaryButtonTime>BUTTON_RESET_TIME)
-      {
-        rotaryButtonTime=0;
-        softwareReset();
-      }
-      */
 
-    //}
 }
-
+/*
 void softwareReset()
 {
   #ifdef DEBUG
@@ -255,3 +224,4 @@ void softwareReset()
         }                       
     } while(0);
 }
+*/

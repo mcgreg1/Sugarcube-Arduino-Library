@@ -16,6 +16,11 @@ FlipFlop::FlipFlop()
   for (byte i = 0; i < 16; i++) {
     notes[i] = t_notes[i];
   }
+  byte tempos[] = {5,10,15,20,25,30,40,50,70,100};//kgv 4200
+  //byte tempos[] = {5,10,15,25,35,50,65,80};//kgv 109200
+  //byte tempos[] = {5,10,15,20,25,30,35,40,45,50,60,70,80,90,100,110};//kgv 277200 
+  
+  tempo = tempos[constrain(map(getPot2Val(), 0, 1024, 0,10), 0, 10)];
 }
 
 void FlipFlop::pot1HasChanged(int val)
@@ -30,14 +35,14 @@ void FlipFlop::pot1HasChanged(int val)
 
 void FlipFlop::pot2HasChanged(int val)
 {
-  byte tempos[] = {10, 30, 50, 70, 90, 110, 130, 150};
+  //byte tempos[] = {10, 30, 50, 70, 90, 110, 130, 150};
+  byte tempos[] = {5,10,15,20,25,30,40,50,70,100};//kgv 4200
   //byte tempos[]={25,50,75,100,125,150,175,200};
-  //currentTempo=maxTempoFromPotVal(int val);
-  currentTempo = tempos[val >> 7]; //constrain(map(val, 0, 1024, 0,8), 0, 8);
-  for (i = 0; i < 16; i++)
-    column[i].tempo = tempos[val >> 7];
+  //tempoCounter=maxTempoFromPotVal(int val);
+  tempo = tempos[constrain(map(val, 0, 1024, 0,10), 0, 10)];
+
 #ifdef DEBUG
-  Serial.println((String)"Change tempo to: " + currentTempo);
+  Serial.println((String)"Change tempo to: " + tempo);
 #endif
 }
 void FlipFlop::instrumentHasChanged(byte val)
@@ -76,7 +81,6 @@ void FlipFlop::buttonPressed(byte xPos, byte yPos)
     column[absPosition].activated = true;
     column[absPosition].goingUp = false;
     column[absPosition].height = column[absPosition].currentHeight = 3 - yPos;
-    column[absPosition].tempo = 50; //1 second tempo
     column[absPosition].channel = currentMidiChannel;
     column[absPosition].playedTone = 0;
 
@@ -97,9 +101,9 @@ void FlipFlop::updateColumn(byte colNbr)
   if (column[colNbr].activated)
   {
     //check if tempo elapsed
-    if (currentTempo % column[colNbr].tempo == 0) //to keep all columns in sync
+    if (tempoCounter % tempo == 0) //to keep all columns in sync
     {
-      //Serial.println((String)"Current Tempo: "+currentTempo);
+      //Serial.println((String)"Current Tempo: "+tempoCounter);
       //column[colNbr].tempo = 0;
       if (column[colNbr].goingUp)
       { //we are at top, note off tone and go down
@@ -146,7 +150,7 @@ void FlipFlop::updateColumn(byte colNbr)
       }
     }
     //toggle pixel, use half tempo to switch off
-    else if (!column[colNbr].height && currentTempo % (column[colNbr].tempo / 2) == 0)
+    else if (!column[colNbr].height && tempoCounter % (tempo / 2) == 0)
     {
       noteOff(column[colNbr].playedTone, column[colNbr].channel);
       column[colNbr].playedTone = 0;
@@ -180,8 +184,8 @@ void FlipFlop::updateLED(byte colNbr)
 void FlipFlop::routine100Hz()
 {
 
-  if (++currentTempo == 21000) //kgV between tempos
-    currentTempo = 0;
+  if (++tempoCounter == 4200) //kgV between tempos
+    tempoCounter = 0;
   for (byte i = 0; i < 16; i++)
   {
     updateColumn(i);
@@ -214,7 +218,6 @@ void FlipFlop::clearAllStorage()
     column[i].activated = false;
     column[i].goingUp = false;
     column[i].height = column[i].currentHeight = 0;
-    column[i].tempo = 100; //1 second tempo
     column[i].channel = 0;
 
   }

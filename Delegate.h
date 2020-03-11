@@ -125,7 +125,7 @@ class FlipFlop: public Delegate {
       bool goingUp;
       byte absPosition;
       byte height;
-      byte tempo;//maybe later
+      //byte tempo;//maybe later
       byte channel;
       byte currentHeight;
       byte playedTone;
@@ -140,7 +140,7 @@ class FlipFlop: public Delegate {
     byte xOffset;
     byte absolutePosition(byte pos);
     byte getOffsetFromPotVal(int pos);
-    unsigned int currentTempo;
+    unsigned int tempoCounter;
     byte tempo;
     
 };  
@@ -233,6 +233,33 @@ class SimpleMIDIKeyboard: public Delegate {
     byte baseNote;//lowest note in the keyboard
 
 };
+
+class InstrumentTest: public Delegate {
+  
+  public:
+
+    InstrumentTest();
+    
+    void buttonPressed(byte xPos, byte yPos);
+    void buttonReleased(byte xPos, byte yPos);
+    void pot1HasChanged(int val);//base note
+    void pot2HasChanged(int val);//pitchbend
+    void playCurrentTone();
+    void routine100Hz();
+
+    
+  private:
+  
+    byte baseNote;//lowest note in the keyboard
+    bool selected;
+    byte tempo;
+    byte currentTone;
+    unsigned int tempoCounter;
+    byte currentInstrument;
+    byte instOffset;
+
+};
+
 
 class StepSequencer: public Delegate {
 
