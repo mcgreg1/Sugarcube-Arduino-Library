@@ -178,7 +178,7 @@ void checkAnalogPins()
 //the state is delayed by ROTARY_IDLE_TIME, so we don't send MIDI commands while it's rotating
 void checkRotaryEncoder()
 {
-  byte instList[] = {4,12,20,28,36,44,52,60,68,76,84,92,100,108,116,124};
+
       //check Instrument
     bool n = digitalReadFast(instLPin);
     if ((instrumentLast == LOW) && (n == HIGH)) 
@@ -199,7 +199,7 @@ void checkRotaryEncoder()
         currentInstrument++;
      
       }
-      instrumentHasChanged(instList[currentInstrument-1]);
+      instrumentHasChanged(instrumentList[currentInstrument-1]);
       //instrumentHasChanged(currentInstrument);
     }
     instrumentLast=n;

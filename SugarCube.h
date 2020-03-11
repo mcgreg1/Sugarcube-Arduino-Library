@@ -37,7 +37,9 @@
 //#define INSTRUMENT_TEST         
 
 #define INSTRUMENT_MAX 16      //1-128 Melodic 
-#define DEFAULT_INSTRUMENT 60
+#define DEFAULT_INSTRUMENT 8   //start counting at 1: 8th entry in instrumentList
+const byte instrumentList[] = {4,12,20,28,36,44,52,60,68,76,84,92,100,108,116,124};
+
 #define ROTARY_IDLE_TIME 1000   //1,5 seconds
 #define BUTTON_RESET_TIME 3000  //3 sec
 

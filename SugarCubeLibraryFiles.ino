@@ -26,7 +26,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("VS1053 MIDI test");
   #endif
-  VS1053_MIDI.begin(31250);//set midi baud 
+  VS1053_MIDI.begin(31250);//set midi baud rate
 
   VS1053_MIDI.write(MIDI_CHAN_MSG);
   VS1053_MIDI.write(MIDI_RESET_ALL_CONTROLLERS);
@@ -35,7 +35,7 @@ void setup()
   //midiSetChannelVolume(0, 127);
   //midiSetInstrument(0, DEFAULT_INSTRUMENT);
   currentInstrument=DEFAULT_INSTRUMENT;
-  setInstrument(currentInstrument);
+  setInstrument(instrumentList[currentInstrument-1]);
   
   pinMode(ledLatchPin,OUTPUT);
   pinMode(ledClockPin,OUTPUT);
