@@ -185,7 +185,7 @@ void checkRotaryEncoder()
     {
       if (digitalReadFast(instRPin) == LOW) 
       {
-        if (currentInstrument<=0)             //possible values 1-INSTRUMENT_MAX
+        if (currentInstrument<=1)             //possible values 1-INSTRUMENT_MAX
           currentInstrument=INSTRUMENT_MAX;
         else
           currentInstrument--;
@@ -199,6 +199,9 @@ void checkRotaryEncoder()
         currentInstrument++;
      
       }
+      #ifdef DEBUG
+      Serial.println((String)"Instrument list entry: "+(currentInstrument));
+      #endif
       instrumentHasChanged(instrumentList[currentInstrument-1]);
       //instrumentHasChanged(currentInstrument);
     }

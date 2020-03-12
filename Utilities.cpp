@@ -260,7 +260,7 @@ byte getStateOfButtonCol(byte col)
 
 
 
-
+/*
 //---------------------------------------------------------------------
 //------------------------Basic Proto specific commands--------------------------------
 //---------------------------------------------------------------------
@@ -274,3 +274,4 @@ float getBattery()
   Serial.print("VBat: " ); 
   Serial.println(measuredvbat);
 }
+*/

@@ -59,7 +59,9 @@ void FlipFlop::wasShaken()
 void FlipFlop::buttonPressed(byte xPos, byte yPos)
 {
   byte absPosition = xPos + xOffset;
+  #ifdef DEBUG
   Serial.println((String)"Absolute Position: " + absPosition);
+  #endif
 
   if (column[absPosition].activated)//switch off
   {

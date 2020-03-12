@@ -74,7 +74,9 @@ void HeartBeat::pot2HasChanged(int val)
   if (currentLED<16)
   {
   pixel[currentLED].tempo = tempos[val>>7];//10 bit to 3 bit
+  #ifdef DEBUG
   Serial.println((String)"Change tempo to: "+ pixel[currentLED].tempo);
+  #endif
   }
 }
 void HeartBeat::instrumentHasChanged(byte val)
