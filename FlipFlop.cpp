@@ -118,14 +118,11 @@ void FlipFlop::updateColumn(byte colNbr)
         else//we are on the way up
         {
           column[colNbr].currentHeight++;
-
-#ifdef DEBUG
+          #ifdef DEBUG
           Serial.print("We are going UP ");
           Serial.println(column[colNbr].currentHeight);
-#endif
-
+          #endif
         }
-
       }
       else//going down
       { //we are at bottom, play tone and go up
@@ -142,12 +139,10 @@ void FlipFlop::updateColumn(byte colNbr)
         else//we are on the way down
         {
           column[colNbr].currentHeight--;
-
-#ifdef DEBUG
+          #ifdef DEBUG
           Serial.print("We are going DOWN ");
           Serial.println(column[colNbr].currentHeight);
-#endif
-
+          #endif
         }
       }
     }
@@ -156,7 +151,6 @@ void FlipFlop::updateColumn(byte colNbr)
     {
       noteOff(column[colNbr].playedTone, column[colNbr].channel);
       column[colNbr].playedTone = 0;
-
     }
   }//if activated
 
@@ -179,7 +173,7 @@ void FlipFlop::updateLED(byte colNbr)
         turnOnLED(colNbr + xOffset, 3);
     }
   }
-  else
+  else //if not active, make sure it's off
     setLEDCol(colNbr, 0);
 }
 

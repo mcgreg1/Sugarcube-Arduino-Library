@@ -177,7 +177,8 @@ void playSequenceFromPosition(byte metronom, byte *toneMem, byte len, byte baseN
   {
     byte x=toneMem[metronom/2]&B011;
     byte y=toneMem[metronom/2]>>2;
-    byte note=toneMem[metronom/2]+baseNote;
+    byte note=createMIDINoteInFourths(x, y, baseNote);
+       
     if (metronom%2==1) //pause
     {
       noteOff(note,currentMidiChannel);

@@ -34,7 +34,7 @@
 
 #define DEBUG                   //for serial print commands
 
-//#define INSTRUMENT_TEST         
+#define INSTRUMENT_TEST         
 
 #define INSTRUMENT_MAX 16      //1-128 Melodic 
 #define DEFAULT_INSTRUMENT 8   //start counting at 1: 8th entry in instrumentList

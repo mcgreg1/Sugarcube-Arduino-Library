@@ -71,10 +71,10 @@ void pot2HasChanged(int val)
 
 void volHasChanged(int val)
 {
-  velocity= val>>3;
+  velocity= (val>>4)*2;
   //velocity=constrain(map(val, 0,1023, 25, 127), 25, 127);
 
-    #ifdef DEBUG
+  #ifdef DEBUG
   Serial.println((String)"Velocity: "+velocity);
   #endif
 
@@ -84,17 +84,12 @@ void instrumentHasChanged(byte val)
   setInstrument(val);
   #ifdef DEBUG
   Serial.println((String)"Instrument: "+val+" midi Channel: "+currentMidiChannel);
-  
   #endif
 
   if (activeMode != NULL)
   {
-
-    activeMode->instrumentHasChanged(val);
-    
+    activeMode->instrumentHasChanged(val); 
   }
-
-
 }
 void instrumentButtonHasChanged()
 {
@@ -109,7 +104,6 @@ void instrumentButtonHasChanged()
     allNotesOff(i);
     instrumentPerChannel[i]=0;
   }
-
   //for (i=0; i<16; i++)
     //allNotesOff(i);
 
@@ -117,9 +111,6 @@ void instrumentButtonHasChanged()
   //VS1053_MIDI.write(MIDI_CHAN_MSG);
   //VS1053_MIDI.write(MIDI_RESET_ALL_CONTROLLERS);
   //wait for input
-
-
-
 }
 
 int getPot1Val()
@@ -130,7 +121,6 @@ int getPot2Val()
 {//returns value of potentiomenter #1
   return pot2;
 }
-
 
 int analogValFromPin(byte pinNum, int oldVal)
 {
@@ -163,8 +153,15 @@ void checkAnalogPins()
       pot2HasChanged(newVal);
     }
  
-    //check Volume
-
+    //check Volume: it's not stable somehow
+    newVal = analogRead(volPin);
+    //16 values can be off means 2^4
+    if ((abs(newVal-volRaw))>>4)
+    {
+      volRaw=newVal;
+      volHasChanged(volRaw);
+    }
+/*
     newVal=analogValFromPin(volPin, volRaw);
     if (volRaw != newVal)
     {
@@ -172,7 +169,7 @@ void checkAnalogPins()
       volHasChanged(volRaw);
 
     }
-
+*/
 
 }
 //the state is delayed by ROTARY_IDLE_TIME, so we don't send MIDI commands while it's rotating
@@ -208,9 +205,8 @@ void checkRotaryEncoder()
     instrumentLast=n;
     if (!digitalReadFast(instButtonPin))
     {
-      
+   
       instrumentButtonHasChanged();
-
     }
 
 }

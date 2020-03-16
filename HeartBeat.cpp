@@ -20,7 +20,6 @@ HeartBeat::HeartBeat()
   heartBeatCounter=0;
 
 }
-
       
 void HeartBeat::buttonPressed(byte xPos, byte yPos)
 {

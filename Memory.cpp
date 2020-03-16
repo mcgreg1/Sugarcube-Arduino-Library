@@ -96,7 +96,7 @@ void Memory::routine100Hz()
         {
           tempo =0; //1 second tempo
           //metronom++;
-          playSequenceFromPosition(metronom++, toneMemory, toneLen, 60);
+          playSequenceFromPosition(metronom++, toneMemory, toneLen, baseNote);
         }
         
         if (metronom>toneLen*2)

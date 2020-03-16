@@ -15,7 +15,6 @@ SimpleMIDIKeyboard::SimpleMIDIKeyboard()
 void SimpleMIDIKeyboard::buttonPressed(byte xPos, byte yPos)
 {
   turnOnLED(xPos,yPos);
-//        Serial.println((String)"Note: "+createMIDINoteInFourths(xPos, yPos, baseNote)+" velocity: "+velocity+" channel: "+currentMidiChannel);
   noteOn(createMIDINoteInFourths(xPos, yPos, baseNote), velocity,currentMidiChannel);
 }
 
@@ -37,5 +36,5 @@ void SimpleMIDIKeyboard::pot2HasChanged(int val)
 {
   //velocity = velocityFromAnalogVal(val);
   
-pitchbendFromAnalogVal(val, currentMidiChannel);
+  pitchbendFromAnalogVal(val, currentMidiChannel);
 }
